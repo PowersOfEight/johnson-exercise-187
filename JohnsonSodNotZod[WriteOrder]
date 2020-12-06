@@ -1,0 +1,126 @@
+package edu.cpt187.johnson.exercise6;
+
+//	Import Classes To Append File
+import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+/**
+ *	PURPOSE:  A WriteOrder, or "written order" is a ledger of orders
+ *	that have submitted.  Entities that sell things often record
+ *	their orders in writing to aid in their internal accounting.
+ */
+public class WriteOrder 
+{
+
+	//	Private Attributes
+	//	File Found Flag
+	private boolean fileFoundFlag = false;
+	
+	//	Master File Name
+	private String masterFileName = "";
+	
+	//	Record Count
+	private int recordCount = 0;
+	
+	//	Public Behaviors
+	
+	//	Constructor
+	/**
+	 * 	This constructor takes assigns
+	 * 	the value of borrowedFileName
+	 * 	to the member variable 
+	 * 	masterFileName during instantiation
+	 */
+	public WriteOrder(String borrowedFileName)
+	{
+		
+		masterFileName = borrowedFileName;
+		
+	}//	END OF Constructor
+	
+	//	Mutators/Setters
+	
+	//	Write To File Behavior
+	/**
+	 * 	This method appends the parameters
+	 * 	to the file @ masterFileName.
+	 * 	Signature: setWriteOrder(
+	 * 				int borrowedItemID,
+	 * 				String borrowedItemName,
+	 * 				double borrowedItemPrice,
+	 * 				int borrowedOrderQuantity,
+	 * 				double borrowedOrderCost)
+	 */
+	public void setWriteOrder(int borrowedItemID,
+			String borrowedItemName,
+			double borrowedItemPrice,
+			int borrowedOrderQuantity,
+			double borrowedOrderCost)
+	{
+		
+		try
+		{
+			
+			//	Try to open the file in order to append
+			PrintWriter filePW = new PrintWriter(
+					new FileWriter(masterFileName, true));
+			
+			
+			//	Write the fields to the file
+			filePW.printf("%n%d\t%s\t%f\t%d\t%f",
+					borrowedItemID,
+					borrowedItemName,
+					borrowedItemPrice,
+					borrowedOrderQuantity,
+					borrowedOrderCost);
+
+			//	Set Flag to True
+			fileFoundFlag = true;
+
+			//	Update Record Count
+			recordCount++;
+			
+			//	Close PrintWriter Instance
+			filePW.close();
+			
+		}//	END OF try
+		catch(IOException ex)
+		{
+			
+			//	Set Flag To False
+			fileFoundFlag = false;
+			
+		}//	END OF catch
+		
+	}//	END OF setWriteOrder
+	
+	//	END OF Mutator Behaviors
+	
+	//	Accessor Behaviors
+	
+	//	File Found Flag Getter
+	public boolean getFileFoundFlag()
+	{
+		
+		return fileFoundFlag;
+		
+	}//	END OF getFileFoundFlag
+	
+	//	File Name Getter
+	public String getFileName()
+	{
+		
+		return masterFileName;
+		
+	}//	END OF getFileName
+	
+	//	Record Count Getter
+	public int getRecordCount()
+	{
+		
+		return recordCount;
+		
+	}//	END OF getRecordCount
+	
+}//	END OF WriteOrder
