@@ -1,0 +1,328 @@
+package edu.cpt187.johnson.exercise6;
+
+//	Import Statements
+import java.util.Scanner;//	Need Scanner Class to Read Files
+import java.io.FileInputStream;//	To Read From file
+import java.io.IOException;//	For Exception Handling
+import java.io.PrintWriter;//	To write to file
+import java.io.FileWriter;//	To Append to file
+
+/**	
+ *	PURPOSE: Accounts are records which contain information about a 
+ * 	client. A user is a client that has access to a given platform
+ * 	so that they may employ or "use" that platform. A "User Account" 
+ * 	is a record of a client's access to a platform.	
+ * 
+ * 	Many companies (such as Amazon, Spotify, etc.) allow 
+ * 	users to register an account in order to use whatever platform
+ * 	the company offers, whether that be access to bargains or 
+ * 	a streaming music service(sometimes both).  
+ * 
+ * 	Typically, a user has to supply the company with a desired
+ * 	username and password to help them identify themselves when
+ * 	using these accounts.  The company must use this information
+ * 	to control access to whatever platform the company offers
+ * 	access to, and also to safeguard users' personal information.
+ */
+
+public class UserAccounts 
+{
+	//	Private Attributes
+	//	Class Constants
+	private final int NOT_FOUND = -1;
+	private final int RESET_VALUE = 0;
+	
+	private final int MAXIMUM_RECORDS = 50;
+	
+	//	Parallel String Arrays
+	private String[] userNames = new String[MAXIMUM_RECORDS];
+	private String[] passwords = new String[MAXIMUM_RECORDS];
+	
+	//	File Name
+	private String masterFileName = "";
+	
+	//	Record Count
+	//	Value as File-Flag
+	private int recordCount = 0;
+	
+	//	Search Index
+	//	Value as Search-Flag
+	private int searchedIndex = 0;
+	
+	//	Public Behaviors
+	//	Constructor
+	/**
+	 * 	Assigns value of borrowedFileName to
+	 * 	the member variable masterFileName.
+	 * 	Signature: UserAccounts(String borrowedFileName)
+	 */
+	public UserAccounts(String borrowedFileName)
+	{
+		
+		masterFileName = borrowedFileName;
+		
+	}//	END OF Constructor
+	
+	//	Set User Account Arrays
+	/**
+	 * 	This setter loads the instance's 
+	 * 	fields (userNames & passwords) 
+	 * 	from the file stored in the member
+	 * 	masterFileName.
+	 */
+	public void setUserAccountArrays()
+	{
+		
+		//	Try to open the file
+		try 
+		{
+			
+			//	Construct a scanner instance that reads the file
+			Scanner infile = 
+					new Scanner(new FileInputStream(masterFileName));
+			
+			//	If you make it here, reset the recordCount
+			recordCount = RESET_VALUE;
+			
+			//	Iterate through arrays to set values
+			while(infile.hasNext() == true &&
+					recordCount < MAXIMUM_RECORDS)
+			{
+				
+				//	Update values
+				userNames[recordCount] = infile.next();
+				passwords[recordCount] = infile.next();
+				
+				//	Update recordCount
+				recordCount++;
+				
+			}//	END OF while setting arrays
+			
+			//	Close the file stream
+			infile.close();
+			
+		}//	END OF try
+		catch(IOException ex)
+		{
+			
+			//	Set recordCount to "not found"
+			recordCount = NOT_FOUND;
+			
+		}//	END OF catch
+		
+	}//	END OF setUserAccountArrays
+	
+	//	Set Searched Index (String)
+	public void setSearchedIndex(String borrowedUserName)
+	{
+		
+		//	Perform a Sequential Search on borrowedUserName
+		searchedIndex = getSeqSearch(borrowedUserName);
+		
+	}//	END OF setSearchedIndex
+	
+	//	Set Searched Index( 
+	//	String borrowedUserName, 
+	//	String borrowedPassword)
+	/**
+	 * This overloaded version will check for the 
+	 * borrowed user name.	If the sequential search
+	 * returns a valid index, it will then check the
+	 * password at that index against the borrowed
+	 * password.  If that password does not match
+	 * the stored password exactly, it will set the
+	 * index flag to "not found".
+	 */
+	public void setSearchedIndex(
+			String borrowedUserName, 
+			String borrowedPassword)
+	{
+		
+		//	Perform a Sequential Search on borrowedUserName
+		searchedIndex = getSeqSearch(borrowedUserName);
+		
+		//	Now Test the Password for that userName
+		if(searchedIndex >= RESET_VALUE &&
+				getPasswordMatch(borrowedPassword) == false)
+		{
+			
+			//	...Assign "not found" to searchedIndex
+			/*
+			 * 	This prevents a security leak that may
+			 * 	occur when using this class.  Once it
+			 * 	has been established that the password
+			 * 	did not match, the searched index is
+			 * 	moved to an invalid position, so there
+			 * 	is no link to a username or password
+			 * 	index which could be exploited.
+			 */
+			searchedIndex = NOT_FOUND;
+			
+		}//	END OF if userName is found AND password matches
+		
+	}//	END OF setSearchedIndex
+	
+	//	Write One Record Setter
+	/**
+	 * This method appends the borrowedUserName
+	 * and borrowedPassword to the end of the
+	 * file.
+	 */
+	public void setWriteOneRecord(
+			String borrowedUserName,
+			String borrowedPassword)
+	{
+		
+		try
+		{
+			
+			/*
+			 * Attempt to open the output file in
+			 * the append mode.
+			 */
+			PrintWriter filePW = new PrintWriter(
+					new FileWriter(masterFileName, true));
+			
+			//	If the file opened without throwing an exception
+			//	Print to the file
+			filePW.printf("%n%s\t%s", 
+					borrowedUserName,
+					borrowedPassword);
+			
+			//	Close Writer Instance
+			filePW.close();
+			
+		}//	END OF try
+		catch (IOException ex)
+		{
+		
+			//	Set the flag to NOT_FOUND
+			recordCount = NOT_FOUND;
+			
+		}//	END OF catch
+		
+	}//	END OF setWriteOneRecord
+	
+	
+	//	Public Accessor Behaviors
+	//	Sequential Search Getter
+	/**
+	 * This method performs a sequential search for the
+	 * borrowedBorrowedUserName through the userNames[]
+	 * array.  Returns the flag value of "not found" 
+	 * if not found, otherwise returns the value of
+	 * the index.
+	 */
+	public int getSeqSearch(String borrowedBorrowedUserName)
+	{
+		
+		//	Declare and initialize local index variable.
+		int localIndex = 0;
+		int localFound = 0;
+		
+		//	Set localFound to "not found"
+		localFound = NOT_FOUND;
+		
+		/*
+		 * Search through the userNames array from the 0th
+		 * index to the Nth index where N = recordCount - 1
+		 */
+		while(localIndex < recordCount)
+		{
+			
+			/*
+			 * Compare userName @ localIndex to the
+			 * borrowedBorrowedUserName using the 
+			 * equalsIgnoreCase() method
+			 */
+			if(userNames[localIndex].equalsIgnoreCase(
+					borrowedBorrowedUserName) == true)
+			{
+				
+				/*
+				 * Set the value of localFound to the 
+				 * localIndex, then set localIndex
+				 * equal to recordCount to exit
+				 * while loop
+				 */
+				localFound = localIndex;
+				localIndex = recordCount;
+				
+			}//	END OF if userNames[localIndex] is borrowedBorrowedUserName
+			else
+			{
+				
+				//	Move on to the next index
+				localIndex++;
+				
+			}//	END OF else
+			
+		}//	END OF while localIndex less than recordCount
+		
+		return localFound;
+		
+	}//	END OF getSeqSearch
+
+	//	Get Password Match
+	/**
+	 * This getter returns a boolean.
+	 * It tests the value of the 
+	 * borrowedBorrowedPassword to the
+	 * value stored in passwords @
+	 * the searchedIndex using
+	 * the String.equals() method.
+	 */
+	public boolean getPasswordMatch(String borrowedBorrowedPassword)
+	{
+		
+		return passwords[searchedIndex].
+				equals(borrowedBorrowedPassword);
+		
+	}//	END OF getPasswordMatch
+	
+	//	Get File Name
+	/**
+	 * Returns the masterFileName
+	 */
+	public String getFileName()
+	{
+		
+		return masterFileName;
+		
+	}//	END OF getFileName
+	
+	//	Get Maximum Records
+	/**
+	 * Returns MAXIMUM_RECORDS
+	 */
+	public int getMaximumRecords()
+	{
+		
+		return MAXIMUM_RECORDS;
+		
+	}//	END OF getMaximumRecords
+	
+	//	Get Record Count
+	/**
+	 * Returns recordCount
+	 */
+	public int getRecordCount()
+	{
+		
+		return recordCount;
+		
+	}//	END OF getRecordCount
+	
+	//	Get SearchedIndex
+	/**
+	 * Returns searchedIndex
+	 */
+	public int getSearchedIndex()
+	{
+		
+		return searchedIndex;
+		
+	}//	END OF getSearchedIndex
+	
+}//	END OF UserAccount
+
