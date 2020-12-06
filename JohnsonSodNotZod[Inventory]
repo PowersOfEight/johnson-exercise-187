@@ -1,0 +1,599 @@
+package edu.cpt187.johnson.exercise6;
+
+import java.util.Scanner;//	To Read From File
+import java.io.FileInputStream;//	To Read From File
+import java.io.IOException;//	To Handle IO Exceptions
+import java.util.Random;//	Random Number Generator
+
+/**
+ * PURPOSE: An Inventory is a list of items that an entity has it its
+ * possession.  Businesses that sell things typically keep inventories
+ * of items that they intend to sell.
+ */
+
+public class Inventory 
+{
+
+	//	Class Constants
+	//	Parallel Discount Information
+	private final String[] DISCOUNT_NAMES = 
+		{
+				"Member",
+				"Senior",
+				"No Discount"
+		};
+	
+	private final double[] DISCOUNT_RATES = 
+		{
+				0.25,
+				0.15,
+				0.0
+		};
+	
+	
+	//	Prize Information
+	private final String[] PRIZE_NAMES =
+		{
+				"Fidget Spinner",
+				"Candy",
+				"Season Tickets"
+		};
+	
+	//	Maximum Allowable Records
+	private final int MAX_RECORDS = 45;
+	
+	//	"Not Found" Flag Value
+	private final int NOT_FOUND = -1;
+	
+	//	The value of ONE
+	private final int ONE = 1;
+	
+	//	Reset Value
+	private final int RESET_VALUE = 0;
+	
+	//	Parallel Item Arrays
+	private int[] itemIDs = new int[MAX_RECORDS];
+	private String[] itemNames = new String[MAX_RECORDS];
+	private double[] itemPrices = new double[MAX_RECORDS];
+	
+	//	Order Information
+	private int[] orderQuantities = new int[MAX_RECORDS];
+	private double[] orderTotals = new double[MAX_RECORDS];
+	
+	//	Stock Counts
+	private int[] inStockCounts = new int[MAX_RECORDS];
+	
+	//	Search Index
+	//	Use this to search for items
+	//	Also the Search-Flag
+	private int itemSearchIndex = 0;
+	
+	//	Record Count
+	//	Keeps track of how many records are loaded
+	//	This is also the File-Flag
+	private int recordCount = 0;
+	
+	//	Prize Generator
+	/**
+	 * This is included to pick a prize at random from
+	 * the PRIZE_NAMES list. 
+	 */
+	private Random prizeGenerator = new Random();
+	
+	//	Public Behaviors
+	//	Constructor
+	public Inventory()
+	{
+		
+	}//	END OF Constructor
+	
+	//	Stock Reducing Setter
+	/**
+	 * Reduces inStockCounts @ itemSearchIndex
+	 * by borrowedHowMany
+	 * Signature: setReduceStock(int borrowedHowMany)
+	 */
+	public void setReduceStock(int borrowedHowMany)
+	{
+		
+		inStockCounts[itemSearchIndex] -= borrowedHowMany;
+		
+	}//	END OF setReduceStock
+
+	//	Items Array Setter Overload
+	/**
+	 * Sets Values in the parallel arrays to
+	 * values read from a file at the 
+	 * borrowedFileName parameter.  
+	 * If the file is not found, the recordCount
+	 * flag is set to "Not Found".
+	 * Signature: setLoadItems(	String	borrowedFileName)
+	 */
+	public void setLoadItems(String borrowedFileName)
+	{
+		
+		try
+		{
+			
+			//	Try to open the file
+			Scanner infile = new Scanner(
+					new FileInputStream(borrowedFileName));
+			
+			//	Reset the recordCount
+			recordCount = RESET_VALUE;
+			
+			//	Iteration Loop
+			while(infile.hasNext() == true &&
+					recordCount < MAX_RECORDS)
+			{
+				
+				itemIDs[recordCount] = infile.nextInt();
+				itemNames[recordCount] = infile.next();
+				itemPrices[recordCount] = infile.nextDouble();
+				inStockCounts[recordCount] = infile.nextInt();
+				
+				//	Update recordCount
+				recordCount++;
+				
+			}//	END OF Iteration: Assignment Loop
+			
+			//	Close File Stream
+			infile.close();
+			
+			//	Bubble Sort The Arrays
+			setBubbleSort();
+			
+		}//	END OF try
+		catch(IOException ex)
+		{
+			
+			//	Set Flag to "Not Found"
+			recordCount = NOT_FOUND;
+			
+		}//	END OF catch
+		
+	}//	END OF setLoadItems(String borrowedFileName)
+	
+	//	Items Array Setter Overload
+	/**
+	 * This version of setLoadItems reads
+	 * from a file in a written in a different
+	 * format by a supportive class.
+	 * Signature: setLoadItems(
+	 * 		String borrowedFileName,
+	 * 		int borrowedSize)
+	 */
+	public void setLoadItems(
+			String borrowedFileName,
+			int borrowedSize)
+	{
+		
+		try
+		{
+			//	Try to open the file for reading
+			Scanner infile = new Scanner(
+					new FileInputStream(borrowedFileName));
+			
+			//	Reset recordCount
+			recordCount = RESET_VALUE;
+			
+			//	Array Field Assignment Loop
+			while(infile.hasNext() == true 
+					&& recordCount < MAX_RECORDS 
+					&& borrowedSize < MAX_RECORDS)
+			{
+				
+				/*
+				 * The order of written orders:
+				 * int itemID
+				 * String itemName
+				 * double itemPrice
+				 * int quantity
+				 * double orderTotal
+				 */
+				itemIDs[recordCount] = infile.nextInt();
+				itemNames[recordCount] = infile.next();
+				itemPrices[recordCount] = infile.nextDouble();
+				orderQuantities[recordCount] = infile.nextInt();
+				orderTotals[recordCount] = infile.nextDouble();
+				
+				//	Update recordCount
+				recordCount++;
+				
+			}//	END OF Array Field Assignment while
+			
+			//	Close The File Stream
+			infile.close();
+			
+			//	Bubble Sort the arrays
+			setBubbleSort();
+			
+		}//	END OF try
+		catch(IOException ex)
+		{
+			
+			//	Set Flag to "Not Found"
+			recordCount = NOT_FOUND;
+
+		}//	END OF catch
+		
+	}//	END OF setLoadItems
+	//			(String borrowedFileName,
+	//			int borrowedSize)
+	
+	//	Item Search Index Setter
+	/**
+	 * This method sets the search index
+	 * to either the index of the array
+	 * element that corresponds to the target
+	 * borrowedID or a "not found" flag.
+	 * 
+	 * This method invokes the getSearchResults
+	 * method.
+	 */
+	public void setSearchIndex(int borrowedID)
+	{
+		
+		itemSearchIndex = getSearchResults(borrowedID);
+		
+	}//	END OF setSearchedIndex
+	
+	//	Bubble Sort
+	/**
+	 * This method sorts values in the parallel arrays
+	 * by using a "bubble-sort" algorithm.  This takes
+	 * no parameters and parallelizes ALL arrays.
+	 * Dependent on setSwapArrayElements to accomplish
+	 * swaps.
+	 */
+	public void setBubbleSort()
+	{
+		
+		//	Local Variables
+		int localIndex = 0;
+		int localLast = 0;
+		boolean localSwap = false;
+		
+		//	Set localLast to: recordCount minus ONE
+		localLast = recordCount - ONE;
+		
+		//	Begin Outer Sort Loop
+		while(localLast > RESET_VALUE)
+		{
+			
+			//	Reset Local Index
+			localIndex = RESET_VALUE;
+			
+			//	Set the localSwap Flag to false
+			localSwap = false;
+			
+			//	Iterate through itemIDs
+			while(localIndex < localLast)
+			{
+				
+				/*
+				 * If value @ localIndex is greater than
+				 * the value @ localIndex plus ONE...
+				 */
+				if(itemIDs[localIndex] > 
+				itemIDs[localIndex + ONE])
+				{
+					
+					//	Swap Elements
+					setSwapArrayElements(localIndex);
+					
+					//	Set the swap flag to true
+					localSwap = true;
+					
+				}//	END OF if value @ localIndex greater than next
+				
+				//	Update localIndex
+				localIndex++;
+				
+			}//	END OF while localIndex less than localLast
+
+			//	If the localSwap Flag is still false...
+			if (localSwap == false)
+			{
+				
+				//	...Set the localLast to RESET_VALUE
+				//	Exits outer loop
+				localLast = RESET_VALUE;
+				
+			}//	END OF if localSwap is true
+			else
+			{
+				
+				//	...decrement localLast
+				localLast--;
+				
+			}//	END OF else localSwap not true
+			
+		}//	END OF while localLast greater than RESET
+			
+	}//	END OF setBubbleSort
+	
+	//	Swap Array Elements
+	/**
+	 * This swaps elements @ borrowedIndex with
+	 * elements @ borrowedIndex plus ONE.
+	 * Uses the "A = B ~> B = C ~> C = A" method
+	 * of swapping elements in parallel arrays
+	 */
+	public void setSwapArrayElements(int borrowedIndex)
+	{
+		
+		/*
+		 * Declare and initialize one temporary, local
+		 * variable for each of the parallel arrays
+		 * to store the swapped value. These will
+		 * represent the "A" variable.
+		 */
+		int localItemID = 0;
+		String localItemName = "";
+		double localItemPrice = 0.0;
+		int localOrderQuantity = 0;
+		double localOrderTotal = 0.0;
+		int localInStockCount = 0;
+		
+		/*
+		 * Assign the value of each parallel array
+		 * @ borrowedIndex	(Value of: "B") to the
+		 * Local Element (Variable of: "A") to store
+		 * the value temporarily. 
+		 * Representation: A = B
+		 */
+		localItemID = itemIDs[borrowedIndex];
+		localItemName = itemNames[borrowedIndex];
+		localItemPrice = itemPrices[borrowedIndex];
+		localOrderQuantity = orderQuantities[borrowedIndex];
+		localOrderTotal = orderTotals[borrowedIndex];
+		localInStockCount = inStockCounts[borrowedIndex];
+		
+		/*
+		 * Now that the information from the element
+		 * is stored in a temporary local variable,
+		 * assign the value in each parallel array
+		 * @ borrowedIndex + ONE (Value of: "C") to
+		 * the reference @ borrowedIndex (Reference of:
+		 * "B").
+		 * Representation: B = C
+		 */
+		itemIDs[borrowedIndex] = itemIDs[borrowedIndex + ONE];
+		itemNames[borrowedIndex] = itemNames[borrowedIndex + ONE];
+		itemPrices[borrowedIndex] = itemPrices[borrowedIndex + ONE];
+		orderQuantities[borrowedIndex] = orderQuantities[borrowedIndex + ONE];
+		orderTotals[borrowedIndex] = orderTotals[borrowedIndex + ONE];
+		inStockCounts[borrowedIndex] = inStockCounts[borrowedIndex + ONE];
+	
+		/*
+		 * Now that B and C have the same values, assign the
+		 * temporary value of A to the array element 
+		 * @ borrowedIndex + ONE
+		 */
+		itemIDs[borrowedIndex + ONE] = localItemID;
+		itemNames[borrowedIndex + ONE] = localItemName;
+		itemPrices[borrowedIndex + ONE] = localItemPrice;
+		orderQuantities[borrowedIndex + ONE] = localOrderQuantity;
+		orderTotals[borrowedIndex + ONE] = localOrderTotal;
+		inStockCounts[borrowedIndex + ONE] = localInStockCount;
+		
+	}//	END OF setSwapArrayElements
+	
+	//	Accessor Behaviors
+	
+	//	Get In Stock Counts[]
+	public int[] getInStockCounts()
+	{
+		
+		return inStockCounts;
+		
+	}//	END OF getInStockCounts
+	
+	//	Get Item IDs[]
+	public int[] getItemIDs()
+	{
+		
+		return itemIDs;
+		
+	}//	END OF getItemIDs
+	
+	//	Get Item Names[]
+	public String[] getItemNames()
+	{
+		
+		return itemNames;
+		
+	}//	END OF getItemNames
+	
+	//	Get Item Prices[]
+	public double[] getItemPrices()
+	{
+		
+		return itemPrices;
+		
+	}//	END OF getItemPrices
+	
+	//	Get Discount Names[]
+	public String[] getDiscountNames()
+	{
+		
+		return DISCOUNT_NAMES;
+		
+	}//END OF getItemNames
+	
+	//	Get Discount Rates[]
+	public double[] getDiscountRates()
+	{
+		
+		return DISCOUNT_RATES;
+		
+	}//	END OF getDiscountRates
+	
+	//	Get Order Quantities[]
+	public int[] getOrderQuantities()
+	{
+		
+		return orderQuantities;
+		
+	}//	END OF getOrderQuantities
+	
+	//	Get Order Totals[]
+	public double[] getOrderTotals()
+	{
+		
+		return orderTotals;
+		
+	}//	END OF getOrderTotals
+	
+	//	Get Prize Names[]
+	public String[] getPrizeNames()
+	{
+		
+		return PRIZE_NAMES;
+		
+	}//	END OF getPrizeNames
+	
+	//	Get Random Number
+	public int getRandomNumber()
+	{
+		
+		return prizeGenerator.nextInt(PRIZE_NAMES.length);
+		
+	}//	END OF getRandomNumber
+	
+	//	Get Max Records
+	public int getMaxRecords()
+	{
+		
+		return MAX_RECORDS;
+		
+	}//	END OF getMaxRecords
+	
+	//	Get Item Search Index
+	public int getItemSearchIndex()
+	{
+		
+		return itemSearchIndex;
+		
+	}//	END OF getItemSearchIndex
+	
+	//	Get Record Count
+	public int getRecordCount()
+	{
+		
+		return recordCount;
+		
+	}//	END OF getRecordCount
+	
+	//	Get Grand Total
+	/**
+	 * This method returns the
+	 * accumulated total of
+	 * all values in the orderTotals
+	 * field array.
+	 */
+	public double getGrandTotal()
+	{
+		
+		//	Declare and initialize local variables
+		int localIndex = 0;
+		double localGrandTotal = 0.0;
+		
+		//	Iterate through orderTotals Array
+		while(localIndex < recordCount)
+		{
+		
+			//	Add this value to total
+			localGrandTotal += orderTotals[localIndex];
+			
+			//	Update localIndex
+			localIndex++;
+			
+		}//	END OF while localIndex less than recordCount
+		
+		return localGrandTotal;
+		
+	}//	END OF getGrandTotal
+	
+	//	Get Search Results
+	/**
+	 * This returns an int representing
+	 * either the index that corresponds
+	 * to a borrowedBorrowedID or the 
+	 * "not found" flag.
+	 * Executes a binary search, so 
+	 * field arrays must be SORTED.
+	 */
+	public int getSearchResults(int borrowedBorrowedID)
+	{
+		
+		//	Declare and initialize variables
+		//	Constant to set localMid
+		final int TWO = 2;
+		
+		//	First, Middle and Last Index
+		int localFirst = 0;
+		int localMid = 0;
+		int localLast = 0;
+		
+		//	Found Flag
+		boolean localFound = false;
+		
+		//	Set the first value for last index.
+		localLast = recordCount - ONE;
+		
+		//	Commence Search
+		while( localFirst <= localLast &&
+				localFound == false)
+		{
+			
+			//	Set Value For Local Mid
+			localMid = (localFirst + localLast)/TWO;
+			
+			/*
+			 * 	If the value @ localMid matches the borrowed value...
+			 */
+			if(itemIDs[localMid] == borrowedBorrowedID)
+			{
+				
+				//	...Set localFound to true
+				localFound = true;
+				
+			}//	END OF if target was found
+			else
+			{
+				
+				if(itemIDs[localMid] < borrowedBorrowedID)
+				{
+					
+					//	...Move the first above localMid
+					localFirst = localMid + ONE;
+					
+				}//	END OF if ID @ localMid is less than target
+				else
+				{
+
+					//	...Move the last under the localMid
+					localLast = localMid - ONE;
+					
+				}//	END OF else ID @ localMid is greater than target
+			
+			}//	END OF else target was not found this time
+			
+		}//	END OF while localLast greaterThan or equal to localFirst
+		
+		//	If localFound is still false...
+		if(localFound == false)
+		{
+			
+			//	...Assign "not found" to localMid
+			localMid = NOT_FOUND;
+			
+		}//	END OF if localFound still false
+		
+		return localMid;
+		
+	}//	END OF getSearchResults
+	
+}//	END OF Inventory
