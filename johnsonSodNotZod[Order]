@@ -1,0 +1,342 @@
+package edu.cpt187.johnson.exercise6;
+/**
+ * PURPOSE: An Order is a list of items that a customer has 
+ * requested for purchase.  It is used to keep track of what 
+ * good or service the customer requested, whether or not 
+ * they are in stock and how much they cost.
+ */
+public class Order 
+{
+	//	Private Attributes
+	//	Tax Rate
+	private final double TAX_RATE = .075;
+
+	//	Discount Type
+	//	Acts as an index
+	private int discountType = 0;
+	
+	//	Item Fields
+	private int itemID = 0;
+	private String itemName = "";
+	private double itemPrice = 0.0;
+	
+	//	Discount Fields
+	private String discountName = "";
+	private double discountRate = 0.0;
+	
+	//	Quantity
+	private int howMany = 0;
+	
+	//	Item Index
+	private int lastItemSelectedIndex = 0;
+	
+	//	Prize Name
+	private String prizeName = "";
+	
+	//	Public Behaviors
+	
+	//	Constructor
+	public Order()
+	{
+		
+	}//	END OF Constructor
+	
+	//	Void Mutator Behaviors
+	
+	//	Last Item Selected Index Setter
+	/**
+	 * 	Assigns the value of borrowedSearchIndex
+	 * 	to the member lastItemSelectedIndex.
+	 * 	Signature:	setLastItemSelectedIndex(
+	 * 					int borrowedSearchIndex)
+	 */
+	public void setLastItemSelectedIndex(int borrowedSearchIndex)
+	{
+		
+		lastItemSelectedIndex = borrowedSearchIndex;
+		
+	}//	END OF setLastItemSelectedIndex
+	
+	//	Item ID Setter
+	/**
+	 * 	Assigns the value of the element stored
+	 * 	inside of the borrowedItemIDs array
+	 * 	@ the lastItemSelectedIndex to the
+	 * 	member itemID.
+	 * 	Signature: setItemID(int[] borrowedItemIDs)
+	 */
+	public void setItemID(int[] borrowedItemIDs)
+	{
+		
+		itemID = borrowedItemIDs[lastItemSelectedIndex];
+		
+	}//	END OF setItemID
+	
+	//	Item Name Setter
+	/**
+	 * 	Assigns the value of the element stored
+	 * 	inside the borrowedItemNames array @
+	 * 	the lastItemSelectedIndex to the member
+	 * 	itemName.
+	 * 	Signature: setItemName(String[] borrowedItemNames)
+	 */
+	public void setItemName(String[] borrowedItemNames)
+	{
+		
+		itemName = borrowedItemNames[lastItemSelectedIndex];
+		
+	}//	END OF setItemNames
+	
+	//	Item Price Setter
+	/**
+	 * 	Assigns the value of the element stored
+	 * 	inside the borrowedItemPrices array @
+	 * 	the lastItemSelected index to the member
+	 * 	itemPrice.
+	 * 	Signature: setItemPrice(double[] borrowedItemPrices)
+	 */
+	public void setItemPrice(double[] borrowedItemPrices)
+	{
+		
+		itemPrice = borrowedItemPrices[lastItemSelectedIndex];
+		
+	}//	END OF setItemPrice
+	
+	//	Quantity Setter
+	/**
+	 * 	Uses the Integer.parseInt() method to
+	 * 	return an int value from the 
+	 * 	borrowedHowMany String object, and 
+	 * 	assigns this value to the member
+	 * 	howMany.
+	 * 	Signature: setHowMany(String borrowedHowMany)
+	 */
+	public void setHowMany(String borrowedHowMany)
+	{
+		
+		howMany = Integer.parseInt(borrowedHowMany);
+		
+	}//	END OF setHowMany
+	
+	//	Discount Type Setter
+	/**
+	 * 	Assigns the value of borrowedMenuSelection
+	 * 	minus 'A' to the member discountType.
+	 * 	Signature: setDiscountType(char borrowedMenuSelection)
+	 */
+	public void setDiscountType(char borrowedMenuSelection)
+	{
+		
+		discountType = borrowedMenuSelection - 'A';
+		
+	}//	END OF setDiscountType
+	
+	//	Discount Name Setter
+	/**
+	 * 	Assigns the value of the element stored
+	 * 	in the borrowedDiscountNames array @
+	 * 	discountType to the member discountName.
+	 * 	Signature: setDiscountName(String[] borrowedDiscountNames)
+	 */
+	public void setDiscountName(String[] borrowedDiscountNames)
+	{
+		
+		discountName = borrowedDiscountNames[discountType];
+		
+	}//	END OF setDiscountName
+	
+	//	Discount Rate Setter
+	/**
+	 *	Assigns the value of the element stored
+	 * 	in the borrowedDiscountRates array @
+	 * 	discountType to the member discountRate.
+	 * 	Signature: setDiscountRate(double[] borrowedDiscountRates)
+	 */
+	public void setDiscountRate(double[] borrowedDiscountRates)
+	{
+		
+		discountRate = borrowedDiscountRates[discountType];
+		
+	}//	END OF setDiscountRate
+	
+	//	Prize Name Setter
+	/**
+	 * 	Assigns the value of the element stored in
+	 * 	the borrowedPrizeNames array @ the 
+	 * 	borrowedPrizeIndex to the member prizeName.
+	 * 	Signature: setPrizeName(
+	 * 					String[] borrowedPrizeNames,
+	 * 					int borrowedPrizeIndex)
+	 */
+	public void setPrizeName(
+			String[] borrowedPrizeNames,
+			int borrowedPrizeIndex)
+	{
+		
+		prizeName = borrowedPrizeNames[borrowedPrizeIndex];
+		
+	}//	END OF setPrizeName
+	
+	//	Decrease Stock Setter
+	/**
+	 * 	Invokes the borrowedInventoryObject.setReduceStock()
+	 * 	method with howMany as an argument to reduce the value of 
+	 * 	the stock in the borrowedInventoryObject by the value of
+	 * 	the member howMany. 
+	 */
+	public void setDecreaseInStock(Inventory borrowedInventoryObject)
+	{
+		
+		borrowedInventoryObject.setReduceStock(howMany);
+		
+	}//	END OF setDecreaseInStock
+	
+	//	END OF Void Mutator Behaviors
+	
+	//	Value Returning Accessor Behaviors
+	
+	//	In Stock Count Getter
+	/**
+	 * 	Uses the instance's lastItemSelectedIndex to return
+	 * 	the inStockCount value from the borrowedInStockCounts
+	 * 	array.
+	 * 	Signature: getInStockCount(int[] borrowedInStockCounts)
+	 */
+	public int getInStockCount(int[] borrowedInStockCounts)
+	{
+		
+		return borrowedInStockCounts[lastItemSelectedIndex];
+		
+	}//	END OF getInStockCount
+	
+	//	Item ID Getter
+	public int getItemID()
+	{
+		
+		return itemID;
+		
+	}//	END OF getItemID
+	
+	//	Item Name Getter
+	public String getItemName()
+	{
+		
+		return itemName;
+		
+	}//	END OF getItemName
+	
+	//	Item Price Getter
+	public double getItemPrice()
+	{
+		
+		return itemPrice;
+		
+	}//	END OF getItemPrice
+	
+	//	How Many Getter
+	public int getHowMany()
+	{
+		
+		return howMany;
+		
+	}//	END OF getHowMany
+	
+	//	Discount Name Getter
+	public String getDiscountName()
+	{
+		
+		return discountName;
+		
+	}//	END OF getDiscountName
+	
+	//	Discount Rate Getter
+	public double getDiscountRate()
+	{
+		
+		return discountRate;
+		
+	}//	END OF getDiscountRate
+	
+	//	Discount Amount Getter
+	/**
+	 * 	This returns the discountRate multiplied
+	 * 	by the itemPrice.
+	 */
+	public double getDiscountAmt()
+	{
+		
+		return itemPrice * discountRate;
+		
+	}//	END OF getDiscountAmt
+	
+	//	Discount Price Getter
+	/**
+	 * 	This returns the difference of itemPrice
+	 * 	and the value returned by getDiscountAmt()
+	 */
+	public double getDiscountPrice()
+	{
+		
+		return itemPrice - getDiscountAmt();
+		
+	}//	END OF getDiscountPrice
+	
+	//	Prize Name Getter
+	public String getPrizeName()
+	{
+		
+		return prizeName;
+		
+	}//	END OF getPrizeName
+	
+	//	Sub-Total Getter
+	/**
+	 * 	This returns the product of the value
+	 * 	returned by getDiscountPrice() and
+	 * 	the value of member howMany.
+	 */
+	public double getSubTotal()
+	{
+		
+		return getDiscountPrice() * howMany;
+		
+	}//	END OF getSubTotal
+	
+	//	Tax Rate Getter
+	public double getTaxRate()
+	{
+		
+		return TAX_RATE;
+		
+	}//	END OF getTaxRate
+	
+	//	Tax Amount Getter
+	/**
+	 * 	This returns the product of the 
+	 * 	value returned by getSubTotal()
+	 * 	and the class constant
+	 * 	TAX_RATE.
+	 */
+	public double getTaxAmt()
+	{
+		
+		return getSubTotal() * TAX_RATE;
+		
+	}//	END OF getTaxAmt
+	
+	//	Total Cost Getter
+	/**
+	 * 	This returns the sum of the
+	 * 	value returned by the 
+	 * 	getSubTotal() method and
+	 * 	the value returned by the 
+	 * 	getTaxAmt() method.
+	 */
+	public double getTotalCost()
+	{
+		
+		return getSubTotal() + getTaxAmt();
+		
+	}//	END OF getTotalCost
+	
+}//	END OF Order
